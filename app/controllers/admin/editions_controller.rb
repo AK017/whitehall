@@ -107,7 +107,7 @@ class Admin::EditionsController < Admin::BaseController
       end
 
       @edition.convert_to_draft! if params[:speed_save_convert]
-      redirect_to show_or_edit_path, saved_confirmation_notice
+      redirect_to show_or_edit_path(doc_exists: true), saved_confirmation_notice
     else
       flash.now[:alert] = "There are some problems with the document"
       if speed_tagging?
@@ -220,11 +220,14 @@ private
     edition_params.merge(creator: current_user)
   end
 
-  def show_or_edit_path
-    if params[:save_and_continue].present?
-      [:edit, :admin, @edition]
+  def show_or_edit_path(doc_exists: false)
+    return [:edit, :admin, @edition] if params[:save_and_continue].present?
+    return admin_edition_path(@edition) if doc_exists
+
+    if @edition.can_be_tagged_to_taxonomy?
+      edit_admin_edition_tags_path(@edition.id)
     else
-      admin_edition_path(@edition)
+      ''#some_legacy_tagging_page_link
     end
   end
 
