@@ -92,6 +92,10 @@ class Admin::EditionsController < Admin::BaseController
   end
 
   def edit
+    if !(edition_tagged_to_any_taxon?)
+      @edit_button = true
+    end
+
     @edition.open_for_editing_as(current_user)
     fetch_version_and_remark_trails
     render :edit
@@ -107,7 +111,7 @@ class Admin::EditionsController < Admin::BaseController
       end
 
       @edition.convert_to_draft! if params[:speed_save_convert]
-      redirect_to show_or_edit_path(doc_exists: true), saved_confirmation_notice
+      redirect_to show_or_edit_path, saved_confirmation_notice
     else
       flash.now[:alert] = "There are some problems with the document"
       if speed_tagging?
@@ -220,15 +224,26 @@ private
     edition_params.merge(creator: current_user)
   end
 
-  def show_or_edit_path(doc_exists: false)
-    return [:edit, :admin, @edition] if params[:save_and_continue].present?
-    return admin_edition_path(@edition) if doc_exists
+  def show_or_edit_path
+    return [:edit, :admin, @edition,] if params[:save_and_continue].present?
+    return tagging_path if params[:edit_topics].present?
+    return admin_edition_path(@edition) if edition_tagged_to_any_taxon?
+    tagging_path
+  end
 
+  def tagging_path
     if @edition.can_be_tagged_to_taxonomy?
       edit_admin_edition_tags_path(@edition.id)
     else
-      ''#some_legacy_tagging_page_link
+      '/'
+      #admin_edition_path(@edition)
+      #<WIP>To be replaced by legacy tagging page link
     end
+  end
+
+  def edition_tagged_to_any_taxon?
+    @edition_taxons = EditionTaxonsFetcher.new(@edition.content_id).fetch
+    @edition_taxons.any? || @edition.topics.any? || @edition.policies.any? || @edition.specialist_sectors.any?
   end
 
   def saved_confirmation_notice

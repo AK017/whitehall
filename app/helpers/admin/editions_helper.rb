@@ -125,7 +125,7 @@ module Admin::EditionsHelper
     edition.edition_organisations.reject(&:lead?)[index].try(:organisation_id)
   end
 
-  def standard_edition_form(edition)
+  def standard_edition_form(edition, edit_button)
     initialise_script "GOVUK.adminEditionsForm", selector: '.js-edition-form', right_to_left_locales: Locale.right_to_left.collect(&:to_param)
 
     form_classes = ["edition-form js-edition-form"]
@@ -138,7 +138,7 @@ module Admin::EditionsHelper
       yield(form)
       concat render('access_limiting_fields', form: form, edition: edition)
       concat render("scheduled_publication_fields", form: form, edition: edition)
-      concat standard_edition_publishing_controls(form, edition)
+      concat standard_edition_publishing_controls(form, edition, edit_button)
     end
   end
 
@@ -209,12 +209,14 @@ module Admin::EditionsHelper
     end
   end
 
-  def standard_edition_publishing_controls(form, edition)
+  def standard_edition_publishing_controls(form, edition, edit_button)
     content_tag(:div, class: "publishing-controls well") do
       if edition.change_note_required?
         concat render(partial: "change_notes",
                       locals: { form: form, edition: edition })
       end
+
+      return concat form.edit_or_save_or_continue if edit_button
       concat form.save_or_continue_or_cancel
     end
   end
