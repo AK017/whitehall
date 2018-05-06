@@ -70,12 +70,17 @@ module Whitehall
     end
 
     def save_or_continue_or_cancel(options = {})
+      buttons = { save: 'Save', save_and_continue: 'Save and continue editing' }
+      form_actions(options.reverse_merge(buttons: buttons))
+    end
+
+    def add_tags_or_save(options = {})
       buttons = { edit_topics: 'Add topics', save_and_continue: 'Save and continue editing' }
       form_actions(options.reverse_merge(buttons: buttons))
     end
 
-    def edit_or_save_or_continue(options = {})
-      buttons = { edit_topics: 'Edit topics', save: 'Save', save_and_continue: 'Save and continue editing' }
+    def edit_tags_or_save(options = {})
+      buttons = { edit_topics: 'Edit topics', save_and_continue: 'Save and continue editing' }
       form_actions(options.reverse_merge(buttons: buttons))
     end
 
