@@ -1,4 +1,4 @@
-//= require jquery.ui.all
+//= require jquery-ui
 //= require extensions/jquery.distinct
 //= require vendor/jquery/jquery.player.min.js
 //= require vendor/jquery/jquery.highlighttextarea.js
