@@ -277,3 +277,5 @@ class PresenterTestCase < ActionView::TestCase
     @view_context.stubs(*args)
   end
 end
+
+ActiveSupport::Deprecation.silenced = true
